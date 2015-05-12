@@ -1,0 +1,197 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Threading;
+using System.Speech.Synthesis;
+
+namespace Scarlett
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            SpeechSynthesizer speech = new SpeechSynthesizer();
+            speech.Rate = 2;
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("Hello, my name is Scarlett. I am here to help.");
+            speech.Speak("Hello, my name is Scarlett. I am here to help.");
+            #region Current Location
+            Console.WriteLine("What is your current location?");
+            speech.Speak("What is your current location?");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            string currentLocation = Console.ReadLine();
+            if (currentLocation == "uphall" || currentLocation == "Uphall")
+            {
+                string voiceWeather = String.Format("Here is the weather for {0} today", currentLocation);
+                speech.Speak(voiceWeather);
+                uphallWeather();
+            }
+            if (currentLocation == "glasgow" || currentLocation == "Glasgow")
+            {
+                string voiceWeather = String.Format("Here is the weather for {0} today", currentLocation);
+                speech.Speak(voiceWeather);
+                glasgowWeather();
+            }
+            if (currentLocation == "edinburgh" || currentLocation == "Edinburgh")
+            {
+                string voiceWeather = String.Format("Here is the weather for {0} today", currentLocation);
+                speech.Speak(voiceWeather);
+                edinburghWeather();
+            }
+            if (currentLocation == "stirling" || currentLocation == "Stirling")
+            {
+                string voiceWeather = String.Format("Here is the weather for {0} today", currentLocation);
+                speech.Speak(voiceWeather);
+                stirlingWeather();
+            }
+            #endregion
+
+            #region Gathering Data
+            DateTime now = DateTime.Now;
+            string voiceDate = String.Format("Today's date is {0}", now);
+            speech.Speak(voiceDate);
+
+            PerformanceCounter upTime = new PerformanceCounter("System", "System Up Time");
+            upTime.NextValue();
+            TimeSpan systemUpTime = TimeSpan.FromSeconds(upTime.NextValue());
+            string timeVoice = String.Format("The system has been running for {0} days {1} hours {2} minutes {3} seconds",
+            (int)systemUpTime.TotalDays, (int)systemUpTime.Hours, (int)systemUpTime.Minutes, (int)systemUpTime.Seconds);
+            speech.Speak(timeVoice);
+
+            Console.WriteLine("Would you like constant or sporadic updates?");
+            speech.Speak("Would you like constant or sporadic updates?");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            string notificationType = Console.ReadLine();
+
+            PerformanceCounter perfCPU = new PerformanceCounter("Processor Information", "% Processor Time", "_Total");
+            perfCPU.NextValue();
+            PerformanceCounter perfMem = new PerformanceCounter("Memory", "Available MBytes");
+            perfMem.NextValue();
+            PerformanceCounter interruptsPC = new PerformanceCounter("Processor", "Interrupts/sec", "_Total");
+            #endregion
+
+            #region Constant Updates
+            if (notificationType == "constant" || notificationType == "Constant")
+            {
+                while (true)
+                {
+                    int currentCPU = (int)perfCPU.NextValue();
+                    int currentMem = (int)perfMem.NextValue();
+                    int currentInterrupt = (int)interruptsPC.NextValue();
+
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("========================");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("CPU Load:         {0}%", currentCPU);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Available Memory: {0}MB", currentMem);
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Interrupts/second:{0}", currentInterrupt);
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("========================");
+
+                    if (currentCPU > 90)
+                    {
+                        if (currentCPU > 95)
+                        {
+                            string cpuVoice = String.Format("You might want to cool it with the CPU");
+                            speech.Speak(cpuVoice);
+                        }
+                        else
+                        {
+                            string cpuVoice = String.Format("The current CPU load is {0} percent", currentCPU);
+                            speech.Speak(cpuVoice);
+                        }
+                    }
+
+                    if (currentMem < 2048)
+                    {
+                        string memVoice = String.Format("You have {0}megabytes of memory available", currentMem);
+                        speech.Speak(memVoice);
+                    }
+                    Thread.Sleep(2000);
+                }
+            }
+            #endregion
+
+            #region Sporadic Updates
+            if (notificationType == "sporadic" || notificationType == "Sporadic")
+            {
+                while (true)
+                {
+                    int currentCPU = (int)perfCPU.NextValue();
+                    int currentMem = (int)perfMem.NextValue();
+                    int currentInterrupt = (int)interruptsPC.NextValue();
+
+
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("========================");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("CPU Load:         {0}%", currentCPU);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Available Memory: {0}MB", currentMem);
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Interrupts/second:{0}", currentInterrupt);
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("========================");
+
+                    if (currentCPU > 90)
+                    {
+                        if (currentCPU > 95)
+                        {
+                            string cpuVoice = String.Format("You might want to cool it with the CPU");
+                            speech.Speak(cpuVoice);
+                        }
+                        else
+                        {
+                            string cpuVoice = String.Format("The current CPU load is {0} percent", currentCPU);
+                            speech.Speak(cpuVoice);
+                        }
+                    }
+
+                    if (currentMem < 2048)
+                    {
+                        string memVoice = String.Format("You have {0}megabytes of memory available", currentMem);
+                        speech.Speak(memVoice);
+                    }
+                    Thread.Sleep(15000);
+                }
+            }
+        }
+            #endregion
+
+        public static void openChrome(string URL)
+        {
+            Process processChrome = new Process();
+            processChrome.StartInfo.FileName = "chrome.exe";
+            processChrome.StartInfo.Arguments = URL;
+            processChrome.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            processChrome.Start();
+        }
+
+        #region Locations
+        static void uphallWeather()
+        {
+            openChrome("http://www.metoffice.gov.uk/public/weather/observation/gcvw1nebm");
+        }
+
+        static void glasgowWeather()
+        {
+            openChrome("http://www.metoffice.gov.uk/public/weather/observation/gcuvz9080");
+        }
+
+        static void edinburghWeather()
+        {
+            openChrome("http://www.metoffice.gov.uk/public/weather/observation/gcvw1nebm");
+        }
+
+        static void stirlingWeather()
+        {
+            openChrome("http://www.metoffice.gov.uk/public/weather/forecast/gcvpnrf34");
+        }
+        #endregion
+    }
+}
